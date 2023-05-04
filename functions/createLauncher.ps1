@@ -1,8 +1,8 @@
 
-function createLauncher($name, $exe){
-  $SourceFilePath = -join($emulationPath,'tools\EmulationStation-DE\Emulators\',$name,'\',$exe,'.exe')
-  $ShortcutPath = -join($emulationPath,'tools\launchers\',$exe,'.lnk')
-  mkdir 'saves\duckstation' -ErrorAction SilentlyContinue
-  mkdir $SourceFilePath -ErrorAction SilentlyContinue
-  createLink $SourceFilePath $ShortcutPath
+function createLauncher($exe){
+  $SourceFilePath = "$env:USERPROFILE\AppData\Roaming\EmuDeck\backend\tools\launchers\$exe.bat"
+  $ShortcutPath = "$toolsPath\launchers\$exe.bat"
+  Copy-Item -Path $SourceFilePath -Destination $ShortcutPath 
+  
+  sedFile $ShortcutPath "C:\Emulation" $emulationPath
 }

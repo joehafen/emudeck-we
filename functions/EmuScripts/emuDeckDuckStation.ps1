@@ -1,18 +1,19 @@
 function DuckStation_install(){
-	showNotification -ToastTitle 'Downloading DuckStation'
+	setMSG 'Downloading DuckStation'
+	$url_duck = getLatestReleaseURLGH 'stenzek/duckstation' 'zip' 'windows-x64' 'symbols'	
 	download $url_duck "duckstation.zip"
-	moveFromTo "duckstation" "tools\EmulationStation-DE\Emulators\duckstation"
-	createLauncher "duckstation" "duckstation-qt-x64-ReleaseLTCG"
+	moveFromTo "temp/duckstation" "tools\EmulationStation-DE\Emulators\duckstation"
+	createLauncher "duckstation"
 }
 function DuckStation_init(){	
-	showNotification -ToastTitle 'DuckStation - Configuration'
+	setMSG 'DuckStation - Configuration'
 	New-Item -Path "tools\EmulationStation-DE\Emulators\duckstation\portable.txt" -ErrorAction SilentlyContinue
 	$destination="tools\EmulationStation-DE\Emulators\duckstation\"
 	mkdir $destination -ErrorAction SilentlyContinue
-	copyFromTo "$env:USERPROFILE\EmuDeck\backend\configs\DuckStation" $destination
+	copyFromTo "$env:USERPROFILE\AppData\Roaming\EmuDeck\backend\configs\DuckStation" $destination
 	
-	#Bios Path
-	sedFile $destination\settings.ini "SearchDirectory = C:\Emulation\bios\" "SearchDirectory = $biosPath"
+	#Paths
+	sedFile $destination\settings.ini "C:\Emulation" "$emulationPath"
 	
 	DuckStation_setupSaves
 }
@@ -23,18 +24,18 @@ function DuckStation_setEmulationFolder(){
 	echo "NYI"
 }
 function DuckStation_setupSaves(){
-	showNotification -ToastTitle 'DuckStation - Creating Saves Links'
-	#Saves
-	$SourceFilePath = -join($userFolder, '\tools\EmulationStation-DE\Emulators\duckstation\memcards')
-	$ShortcutPath = -join($emulationPath,'saves\duckstation\saves.lnk')
+	setMSG 'DuckStation - Creating Saves Links'
+	#Saves	
+	$SourceFilePath = -join($emulationPath, '\tools\EmulationStation-DE\Emulators\duckstation\memcards')
 	mkdir 'saves\duckstation' -ErrorAction SilentlyContinue
 	mkdir $SourceFilePath -ErrorAction SilentlyContinue
-	createLink $SourceFilePath $ShortcutPath
+	$ShortcutPath = -join($emulationPath,'\saves\duckstation\saves.lnk')
+	createLink $SourceFilePath $ShortcutPath	
 	
 	#States
-	$SourceFilePath = -join($userFolder, 'tools\EmulationStation-DE\Emulators\duckstation\savestates')
-	$ShortcutPath = -join($emulationPath,'saves\duckstation\states.lnk')
+	$SourceFilePath = -join($emulationPath, 'tools\EmulationStation-DE\Emulators\duckstation\savestates')
 	mkdir $SourceFilePath -ErrorAction SilentlyContinue
+	$ShortcutPath = -join($emulationPath,'\saves\duckstation\states.lnk')	
 	createLink $SourceFilePath $ShortcutPath
 }
 
@@ -81,10 +82,16 @@ function DuckStation_finalize(){
 	echo "NYI"
 }
 function DuckStation_IsInstalled(){
-	echo "NYI"
+	$test=Test-Path -Path "$emulationPath\tools\EmulationStation-DE\Emulators\duckstation"
+	if($test){
+		echo "true"
+	}
 }
 function DuckStation_resetConfig(){
-	echo "NYI"
+	DuckStation_init
+	if($?){
+		echo "true"
+	}
 }
 
 function DuckStation_wideScreenOn(){
@@ -94,4 +101,8 @@ function DuckStation_wideScreenOn(){
 function DuckStation_wideScreenOff(){
 	setConfig 'WidescreenHack' 'false' 'tools\EmulationStation-DE\Emulators\duckstation\settings.ini'
 	setConfig 'AspectRatio' '4:3' 'tools\EmulationStation-DE\Emulators\duckstation\settings.ini'	
+}
+function DuckStation_retroAchievementsSetLogin(){
+	$rat=Get-Content $env:USERPROFILE/AppData/Roaming/EmuDeck/.rat -Raw
+	setConfig 'Token' $rat 'tools\EmulationStation-DE\Emulators\duckstation\settings.ini'
 }

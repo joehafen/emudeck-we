@@ -1,14 +1,14 @@
 function Cemu_install(){
-	showNotification -ToastTitle 'Downloading Cemu'
+	setMSG 'Downloading Cemu'
 	download $url_cemu "cemu.zip"
-	moveFromTo "cemu\cemu_1.26.2" "tools\EmulationStation-DE\Emulators\cemu"
+	moveFromTo "temp/cemu/cemu_1.27.1" "tools\EmulationStation-DE\Emulators\cemu"
 	Remove-Item -Recurse -Force cemu -ErrorAction SilentlyContinue
-	createLauncher "cemu" "Cemu"
+	createLauncher "cemu"
 
 }
 function Cemu_init(){
-	showNotification -ToastTitle 'Cemu - Configuration'
-	copyFromTo "$env:USERPROFILE\EmuDeck\backend\configs\cemu" "tools\EmulationStation-DE\Emulators\cemu"
+	setMSG 'Cemu - Configuration'
+	copyFromTo "$env:USERPROFILE\AppData\Roaming\EmuDeck\backend\configs\cemu" "tools\EmulationStation-DE\Emulators\cemu"
 	
 	sedFile "tools\EmulationStation-DE\Emulators\cemu\controllerProfiles\controller0.xml" "DSUController" "XInput"
 	#sedFile "tools\EmulationStation-DE\Emulators\cemu\controllerProfiles\Deck-Gamepad-Gyro.xml" "DSUController" "XInput"
@@ -23,11 +23,11 @@ function Cemu_setEmulationFolder(){
 	echo "NYI"
 }
 function Cemu_setupSaves(){
-	showNotification -ToastTitle 'Cemu - Saves Links'
-	$SourceFilePath = "tools\EmulationStation-DE\Emulators\cemu\mlc01\usr\save"
-	$ShortcutPath = -join($emulationPath,'saves\cemu\saves.lnk')
+	setMSG 'Cemu - Saves Links'
+	$SourceFilePath = -join($emulationPath, '\tools\EmulationStation-DE\Emulators\cemu\mlc01\usr\save\')
 	mkdir 'saves\cemu' -ErrorAction SilentlyContinue
-	mkdir $SourceFilePath -ErrorAction SilentlyContinue
+	mkdir $SourceFilePath -ErrorAction SilentlyContinue	
+	$ShortcutPath = -join($emulationPath,'\saves\cemu\saves.lnk')
 	createLink $SourceFilePath $ShortcutPath
 }
 
@@ -66,8 +66,14 @@ function Cemu_finalize(){
 	echo "NYI"
 }
 function Cemu_IsInstalled(){
-	echo "NYI"
+	$test=Test-Path -Path "$emulationPath\tools\EmulationStation-DE\Emulators\cemu"
+	if($test){
+		echo "true"
+	}
 }
 function Cemu_resetConfig(){
-	echo "NYI"
+	Cemu_init
+	if($?){
+		echo "true"
+	}
 }

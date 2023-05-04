@@ -1,23 +1,16 @@
-function downloadCore($url, $output) {
+function downloadCore($url, $core) {
 	#Invoke-WebRequest -Uri $url -OutFile $output
-	$file=-join($output,'.zip')
-	$zipFile=-join($file)
-	$destination = -join($emulationPath,'tools\EmulationStation-DE\Emulators\RetroArch\cores\')
 	$wc = New-Object net.webclient
-	$wc.Downloadfile($url, $file)
-	
-	foreach ($line in $file) {
+	$destination=-join($emulationPath,'\',$core,'.zip')
+	$wc.Downloadfile($url, $destination)
+   
+	foreach ($line in $destination) {
 		$extn = [IO.Path]::GetExtension($line)
-		if ($extn -eq ".zip" ){			
-			Expand-Archive -Path $zipFile -DestinationPath $destination -Force
-			Remove-Item $zipFile
+		if ($extn -eq ".zip" ){						
+			7z x -o"tools\EmulationStation-DE\Emulators\RetroArch\cores\" -aoa $destination		
+			Start-Sleep -Seconds 0.5
+			Remove-Item $destination
 		}
-		#if ($extn -eq ".7z" ){
-		#	$dir = -join($output.replace('.7z',''), "\");
-		#	WinRAR x -y $output $dir
-		#	waitForWinRar
-		#	del $output
-		#}
 	}
 	Write-Host "Done!" -ForegroundColor green -BackgroundColor black
 }

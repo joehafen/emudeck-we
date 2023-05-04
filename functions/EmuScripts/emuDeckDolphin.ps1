@@ -1,62 +1,24 @@
+$Dolphin_emuName="Dolphin"
+$Dolphin_emuType="FlatPak"
+$Dolphin_emuPath="org.DolphinEmu.dolphin-emu"
+$Dolphin_releaseURL=""
+
+
 function Dolphin_install(){
-	showNotification -ToastTitle 'Downloading Dolphin'
+	setMSG 'Downloading Dolphin'
 	download $url_dolphin "dolphin.7z"
-	moveFromTo "dolphin\Dolphin-x64" "tools\EmulationStation-DE\Emulators\Dolphin-x64"
+	moveFromTo "temp/dolphin/Dolphin-x64" "tools\EmulationStation-DE\Emulators\Dolphin-x64"
 	Remove-Item -Recurse -Force dolphin -ErrorAction SilentlyContinue
-	createLauncher "Dolphin-x64" "Dolphin"
+	createLauncher "dolphin"
 	
 }
 function Dolphin_init(){
-	showNotification -ToastTitle 'Dolphin - Configuration'
+	setMSG 'Dolphin - Configuration'
 	New-Item -Path "tools\EmulationStation-DE\Emulators\Dolphin-x64\portable.txt" -ErrorAction SilentlyContinue
 	$destination=-join($emulationPath, "\tools\EmulationStation-DE\Emulators\Dolphin-x64\")
 	mkdir $destination -ErrorAction SilentlyContinue
-	copyFromTo "$env:USERPROFILE\EmuDeck\backend\configs\Dolphin" "$destination"
-	
-	#Replace buttons names from SteamOS	
-	#$path=$destination
-	#Get-ChildItem $path -Recurse -Filter *.ini | 
-	#Foreach-Object {
-	#	$originFile = $_.FullName
-	#
-	#	#Dolphin GC
-	#	sedFile $originFile 'evdev/0/Microsoft X-Box 360 pad 0' 'XInput/0/Gamepad'
-	#	sedFile $originFile 'evdev/0/Microsoft X-Box 360 pad 1' 'XInput/1/Gamepad'
-	#	sedFile $originFile 'evdev/0/Microsoft X-Box 360 pad 2' 'XInput/2/Gamepad'
-	#	sedFile $originFile 'evdev/0/Microsoft X-Box 360 pad 3' 'XInput/3/Gamepad'
-	#	
-	#	sedFile $originFile 'SOUTH' '= Button B'
-	#	sedFile $originFile 'EAST' '= Button A'
-	#	sedFile $originFile 'NORTH' '= Button Y'
-	#	sedFile $originFile 'WEST' '= Button X'
-	#	sedFile $originFile '= TR' '= Trigger L'
-	#	sedFile $originFile '+TR' '+Trigger L'
-	#	#FIX TR on true
-	#	sedFile $originFile '= Trigger Lue' '= Tr'
-	#	sedFile $originFile 'START' 'Start'
-	#	sedFile $originFile '`Axis 1-`' '`Left Y+`'
-	#	sedFile $originFile '`Axis 1+`' '`Left Y-`'
-	#	sedFile $originFile '`Axis 0-`' '`Left X-`'
-	#	sedFile $originFile '`Axis 0+`' '`Left X+`'
-	#	sedFile $originFile '`Axis 4-`' '`Right Y+`'
-	#	sedFile $originFile '`Axis 4+`' '`Right Y-`'
-	#	sedFile $originFile '`Axis 3-`' '`Right X-`'
-	#	sedFile $originFile '`Axis 3+`' '`Right X+`'
-	#	sedFile $originFile '`Full Axis 2+`' '`Shoulder L`'
-	#	sedFile $originFile '`Full Axis 5+`' '`Shoulder R`'
-	#	sedFile $originFile '`Full Axis 2+`' '`Trigger L`'
-	#	sedFile $originFile '`Full Axis 5+`' '`Trigger R`'
-	#	sedFile $originFile '`Axis 7-`' '`Pad N`'
-	#	sedFile $originFile '`Axis 7+`' '`Pad S`'
-	#	sedFile $originFile '`Axis 6-`' '`Pad W`'
-	#	sedFile $originFile '`Axis 6+`' '`Pad E`'
-	#	
-	#	#Dolphin Wii	
-	#	sedFile $originFile 'SELECT' '= Select'
-	#	sedFile $originFile '= TL' '= Shoulder L'
-	#	sedFile $originFile '+TL' '+Shoulder L'
-	#
-	#}	
+	copyFromTo "$env:USERPROFILE\AppData\Roaming\EmuDeck\backend\configs\Dolphin" "$destination"
+
 	
 	#Bios Path	
 	sedFile $destination\User\Config\Dolphin.ini "/run/media/mmcblk0p1/Emulation/" "$emulationPath"
@@ -64,6 +26,7 @@ function Dolphin_init(){
 	sedFile $destination\User\Config\Dolphin.ini "/run/media/mmcblk0p1/Emulation/roms/wii" "$emulationPath\roms\wii"
 
 	Dolphin_setupSaves
+	Dolphin_DynamicInputTextures
 }
 function Dolphin_update(){
 	echo "NYI"
@@ -72,24 +35,24 @@ function Dolphin_setEmulationFolder(){
 	echo "NYI"
 }
 function Dolphin_setupSaves(){
-	showNotification -ToastTitle 'Dolphin - Creating Saves Links'
+	setMSG 'Dolphin - Creating Saves Links'
 	#Saves GC
 	$SourceFilePath = -join($emulationPath, '\tools\EmulationStation-DE\Emulators\Dolphin-x64\User\GC')
-	$ShortcutPath = -join($emulationPath,'saves\dolphin\GC.lnk')
+	$ShortcutPath = -join($emulationPath,'\saves\dolphin\GC.lnk')
 	mkdir 'saves\dolphin' -ErrorAction SilentlyContinue
 	mkdir $SourceFilePath -ErrorAction SilentlyContinue
 	createLink $SourceFilePath $ShortcutPath
 	
 	#Saves Wii
 	$SourceFilePath = -join($emulationPath, '\tools\EmulationStation-DE\Emulators\Dolphin-x64\User\Wii')
-	$ShortcutPath = -join($emulationPath,'saves\dolphin\Wii.lnk')
+	$ShortcutPath = -join($emulationPath,'\saves\dolphin\Wii.lnk')
 	mkdir 'saves\dolphin' -ErrorAction SilentlyContinue
 	mkdir $SourceFilePath -ErrorAction SilentlyContinue
 	createLink $SourceFilePath $ShortcutPath
 	
 	#States
 	$SourceFilePath = -join($emulationPath, '\tools\EmulationStation-DE\Emulators\Dolphin-x64\User\StateSaves')
-	$ShortcutPath = -join($emulationPath,'saves\dolphin\states.lnk')
+	$ShortcutPath = -join($emulationPath,'\saves\dolphin\states.lnk')
 	mkdir $SourceFilePath -ErrorAction SilentlyContinue
 	createLink $SourceFilePath $ShortcutPath
 }
@@ -124,10 +87,27 @@ function Dolphin_setABXYstyle(){
 	echo "NYI"
 }
 function Dolphin_wideScreenOn(){
-	echo "NYI"
+	setMSG "Dolphin Widescreen On"
+	echo ""
+	$configFile='tools\EmulationStation-DE\Emulators\Dolphin-x64\User\Config\GFX.ini'
+	$wideScreenHack='wideScreenHack = '
+	$wideScreenHackSetting='wideScreenHack = True'
+	$aspectRatio='AspectRatio = '
+	$aspectRatioSetting='AspectRatio = 1'
+	sedFile $configFile $wideScreenHack $wideScreenHackSetting
+	sedFile $configFile $aspectRatio $aspectRatioSetting
+
 }
 function Dolphin_wideScreenOff(){
-	echo "NYI"
+	setMSG "Dolphin Widescreen Of"
+	echo ""
+	$configFile='tools\EmulationStation-DE\Emulators\Dolphin-x64\User\Config\GFX.ini'
+	$wideScreenHack='wideScreenHack = '
+	$wideScreenHackSetting='wideScreenHack = False'
+	$aspectRatio='AspectRatio = '
+	$aspectRatioSetting='AspectRatio = 0'
+	sedFile $configFile $wideScreenHack $wideScreenHackSetting
+	sedFile $configFile $aspectRatio $aspectRatioSetting
 }
 function Dolphin_bezelOn(){
 	echo "NYI"
@@ -139,8 +119,22 @@ function Dolphin_finalize(){
 	echo "NYI"
 }
 function Dolphin_IsInstalled(){
-	echo "NYI"
+	$test=Test-Path -Path "$emulationPath\tools\EmulationStation-DE\Emulators\Dolphin-x64"
+	if($test){
+		echo "true"
+	}
 }
 function Dolphin_resetConfig(){
-	echo "NYI"
+	Dolphin_init
+	if($?){
+		echo "true"
+	}
+}
+
+
+function Dolphin_DynamicInputTextures(){
+  $DIT_releaseURL = getLatestReleaseURLGH 'Venomalia/UniversalDynamicInput' '7z'
+  mkdir "$toolsPath\EmulationStation-DE\Emulators\Dolphin-x64\User\Load" -ErrorAction SilentlyContinue
+  download $DIT_releaseURL "UniversalDynamicInput.7z"
+  moveFromTo "temp/UniversalDynamicInput" "$toolsPath\EmulationStation-DE\Emulators\Dolphin-x64\User\Load"	
 }

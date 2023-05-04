@@ -1,7 +1,8 @@
 function PPSSPP_install(){
-	showNotification -ToastTitle 'Downloading PPSSPP'
+	setMSG 'Downloading PPSSPP'
 	download $url_PPSSPP "PPSSPP.zip"
-	moveFromTo "PPSSPP" "tools\EmulationStation-DE\Emulators\ppsspp_win"
+	moveFromTo "temp/PPSSPP" "tools\EmulationStation-DE\Emulators\ppsspp_win"
+	createLauncher "PPSSPP"
 }
 function PPSSPP_init(){
 	echo "NYI"
@@ -49,8 +50,14 @@ function PPSSPP_finalize(){
 	echo "NYI"
 }
 function PPSSPP_IsInstalled(){
-	echo "NYI"
+	$test=Test-Path -Path "$emulationPath\tools\EmulationStation-DE\Emulators\ppsspp_win"
+	if($test){
+		echo "true"
+	}
 }
 function PPSSPP_resetConfig(){
-	echo "NYI"
+	PPSSPP_init
+	if($?){
+		echo "true"
+	}
 }

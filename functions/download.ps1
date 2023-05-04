@@ -1,21 +1,19 @@
 function download($url, $output) {
 	#Invoke-WebRequest -Uri $url -OutFile $output
 	$wc = New-Object net.webclient
-	$wc.Downloadfile($url, -join($winPath,'Emulation\',$output))
+	$destination=-join($emulationPath,'\',$output)
+	$wc.Downloadfile($url, $destination)
    
 	foreach ($line in $output) {
 		$extn = [IO.Path]::GetExtension($line)
-		if ($extn -eq ".zip" ){
-			   #Expand-Archive  $output $output.replace('.zip','') -ErrorAction SilentlyContinue
-			$dir = -join($output.replace('.zip',''), "\");
-			WinRAR x -y $output $dir
-			waitForWinRar
+		if ($extn -eq ".zip" ){			
+			$dir = $output.replace('.zip','')
+			7z x -o"temp/$dir" -aoa $output		
 			Remove-Item $output
 		}
 		if ($extn -eq ".7z" ){
-			$dir = -join($output.replace('.7z',''), "\");
-			WinRAR x -y $output $dir
-			waitForWinRar
+			$dir = $output.replace('.7z','')
+			7z x -o"temp/$dir" -aoa $output		
 			Remove-Item $output
 		}
 	}
