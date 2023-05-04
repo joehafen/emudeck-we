@@ -74,8 +74,14 @@ function Ryujinx_finalize(){
 	echo "NYI"
 }
 function Ryujinx_IsInstalled(){
-	echo "NYI"
+	$test=Test-Path -Path "tools\EmulationStation-DE\Emulators\Ryujinx"
+	if($test){
+		echo "true"
+	}
 }
 function Ryujinx_resetConfig(){
-	echo "NYI"
+	Ryujinx_init
+	if($?){
+		echo "true"
+	}
 }
